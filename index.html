@@ -25,18 +25,18 @@
     }
 
     .info {
-  padding: 6px 8px;
-  font: 14px/16px Arial, Helvetica, sans-serif;
-  background: white;
-  background: rgba(255,255,255,0.8);
-  box-shadow: 0 0 15px rgba(0,0,0,0.2);
-  border-radius: 5px;
-}
-.info h2 {
-  margin: 0 0 5px;
-  color: #777;
-}
+      padding: 6px 8px;
+      font: 14px/16px Arial, Helvetica, sans-serif;
+      background: white;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+    }
 
+    .info h2 {
+      margin: 0 0 5px;
+      color: #777;
+    }
   </style>
 </head>
 
@@ -154,44 +154,78 @@
     });
 
     /* GeoJSON Polyline */
-var sungai = L.geoJson(null, {
-/* Style polyline */
-style: function (feature) { //Fungsi style polyline
-  return {
-    color: "blue", //Warna garis
-    weight: 2, //Tebal garis
-    opacity: 0.5, //Transparansi garis
-  };
-},
-/* Highlight & Popup */
-onEachFeature: function (feature, layer) {
-  layer.on({
-    // mouseover: function (e) { //Fungsi ketika mouse berada di atas obyek
-    //   var layer = e.target; //variabel layer
-    //   layer.setStyle({ //Highlight style
-    //     weight: 2,  //Tebal garis
-    //     color: "#00FFFF", //Warna garis
-    //     opacity: 1, //Transparansi garis
-    //   });
-    // },
-    mouseout: function (e) { //Fungsi ketika mouse keluar dari area obyek
-      sungai.resetStyle(e.target); //Mengembalikan style garis ke style awal
-      map.closePopup(); //Menutup popup
-    },
-    click: function (e) { //Fungsi ketika obyek di-klik
-      var content = "Keterangan: " + feature.properties.KETERANGAN + "<br>" +
-        "Panjang: " + feature.properties.PANJANG_KM + " Km";
-      sungai.bindPopup(content); //Popup
-    }
-  });
-}
-});
-/* memanggil data geojson polyline */
-$.getJSON("Sungai.geojson", function (data) {
-sungai.addData(data);
-map.addLayer(sungai); //sungai ditampilkan ketika halaman dipanggil
-});
-    
+    var sungai = L.geoJson(null, {
+      /* Style polyline */
+      style: function (feature) { //Fungsi style polyline
+        return {
+          color: "blue", //Warna garis
+          weight: 2, //Tebal garis
+          opacity: 0.5, //Transparansi garis
+        };
+      },
+      /* Highlight & Popup */
+      onEachFeature: function (feature, layer) {
+        layer.on({
+          // mouseover: function (e) { //Fungsi ketika mouse berada di atas obyek
+          //   var layer = e.target; //variabel layer
+          //   layer.setStyle({ //Highlight style
+          //     weight: 2,  //Tebal garis
+          //     color: "#00FFFF", //Warna garis
+          //     opacity: 1, //Transparansi garis
+          //   });
+          // },
+          mouseout: function (e) { //Fungsi ketika mouse keluar dari area obyek
+            sungai.resetStyle(e.target); //Mengembalikan style garis ke style awal
+            map.closePopup(); //Menutup popup
+          },
+          click: function (e) { //Fungsi ketika obyek di-klik
+            var content = "Keterangan: " + feature.properties.KETERANGAN + "<br>" +
+              "Panjang: " + feature.properties.PANJANG_KM + " Km";
+            sungai.bindPopup(content); //Popup
+          }
+        });
+      }
+    });
+    /* memanggil data geojson polyline */
+    $.getJSON("Sungai.geojson", function (data) {
+      sungai.addData(data);
+      map.addLayer(sungai); //sungai ditampilkan ketika halaman dipanggil
+    });
+
+    /* GeoJSON Point */
+    var peribadatan = L.geoJson(null, {
+      pointToLayer: function (feature, latlng) {
+        return L.marker(latlng, {
+          icon: L.icon({
+            iconUrl: "https://png.pngtree.com/png-clipart/20220929/ourmid/pngtree-christian-place-of-worship-png-image_6232238.png", //icon simbol
+            iconSize: [28, 28], //ukuran icon simbol
+            iconAnchor: [14, 28], //penempatan icon simbol
+            popupAnchor: [0, -28], //penempatan popup terhadap icon simbol
+          })
+        });
+      },
+      /* Popup */
+      onEachFeature: function (feature, layer) {
+        if (feature.properties) {
+          /* Variabel untuk memanggil atribut dari data geojson */
+          var content = 
+          "NAMA: <b>" + feature.properties.NAMA + "</b><br>" +
+          "ALAMAT:" + feature.properties.ALAMAT + "<br>" + 
+          "RATING:" + feature.properties.RATING
+          layer.on({
+            click: function (e) { //Fungsi ketika icon simbol di-klik
+              peribadatan.bindPopup(content);
+            }
+          });
+        }
+      }
+    });
+    /* memanggil data geojson point */
+    $.getJSON("PERIBADATAN.geojson", function (data) {
+      peribadatan.addData(data);
+      map.addLayer(peribadatan); //titikkabkota ditampilkan ketika halaman dipanggil
+    });
+
     //akhir layer peta
 
     var baseMaps = { //list basemap
@@ -200,42 +234,43 @@ map.addLayer(sungai); //sungai ditampilkan ketika halaman dipanggil
       'Google Hybrid': GoogleHybrid
     };
     var Layers = {  //list layer
-      "Jalan Utama":jalanutama,
-      "Admin Desa":admindesa,
-      "Sungai":sungai,
+      "Jalan Utama": jalanutama,
+      "Admin Desa": admindesa,
+      "Sungai": sungai,
+      "Tempat Peribadatan": peribadatan,
 
     };
     var layerControl = L.control.layers(baseMaps, Layers, { collapsed: false });
-    
+
 
     var title = new L.Control();
-title.onAdd = function (map) {
-  this._div = L.DomUtil.create('div', 'info');
-  this.update();
-  return this._div;
-};
-title.update = function () {
-  this._div.innerHTML = '<h2>Peta Magelang Utara</h2>Desa Senden,Kota Magelang'
-};
-title.addTo(map);
-layerControl.addTo(map);
+    title.onAdd = function (map) {
+      this._div = L.DomUtil.create('div', 'info');
+      this.update();
+      return this._div;
+    };
+    title.update = function () {
+      this._div.innerHTML = '<h2>Peta Magelang Utara</h2>Desa Senden,Kota Magelang'
+    };
+    title.addTo(map);
+    layerControl.addTo(map);
 
-L.Control.Watermark = L.Control.extend({
-  onAdd: function(map) {
-    var img = L.DomUtil.create('img');
-    img.src = 'https://itny.ac.id/wp-content/uploads/2019/03/logo-itny21.png'; //Image URL
-    img.style.width = '200px'; //Image Size
-    return img;
-  },
-  onRemove: function(map) {
-    // Nothing to do here
-  }
-});
-L.control.watermark = function(opts) {
-  return new L.Control.Watermark(opts);
-}
-L.control.watermark({ position: 'bottomleft' }).addTo(map);
-map.attributionControl.setPrefix("Nuralya Putri Cahyani A")
+    L.Control.Watermark = L.Control.extend({
+      onAdd: function (map) {
+        var img = L.DomUtil.create('img');
+        img.src = 'https://itny.ac.id/wp-content/uploads/2019/03/logo-itny21.png'; //Image URL
+        img.style.width = '200px'; //Image Size
+        return img;
+      },
+      onRemove: function (map) {
+        // Nothing to do here
+      }
+    });
+    L.control.watermark = function (opts) {
+      return new L.Control.Watermark(opts);
+    }
+    L.control.watermark({ position: 'bottomleft' }).addTo(map);
+    map.attributionControl.setPrefix("Nuralya Putri Cahyani A")
   </script>
 </body>
 
